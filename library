@@ -1,0 +1,456 @@
+import mysql.connector as sql
+mydb=sql.connect(host='localhost',user='root',passwd='rrithik@006')
+mycursor=mydb.cursor()
+
+#mycursor.execute('create database library')
+mycursor.execute('use library')
+'''mycursor.execute('create table admin(adminname varchar(30),passwd varchar(30))')
+mycursor.execute("insert into admin values('Rithik','rithik785')")
+mycursor.execute("insert into admin values('Arun Vijay','arun134')")
+mycursor.execute("insert into admin values('Griffin joe','joe630')")
+mydb.commit()
+mycursor.execute("create table user(userid varchar(20) primary key,username varchar(50),email varchar(50),password varchar(20),phone varchar(10))")
+mycursor.execute("create table book(bookid varchar(20) primary key,bookname varchar(20),Author varchar(20),Publisher varchar(50),Cost int)")
+mycursor.execute("create table issue(userid varchar(20),bookid varchar(20),dateofissue date)")
+mycursor.execute("create table issuelog(userid varchar(20),bookid varchar(20),dateofissue date,dateofreturn date)")
+mydb.commit()'''
+    
+def validoption():
+    print("Enter the Valid Option")
+    print('-'*40)
+    home()
+
+def Exit():
+    print("-"*20,"THANK YOU","-"*21)
+    exit()
+ 
+#user
+
+
+def adduser():
+    print('-'*60)
+    print("\t ADDING  A NEW User")
+    print('-'*60)
+    userid=input("Enter User Id : ")
+    qry="select * from user where userid='{}' ".format(userid)
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    if len(myrecord)==0:
+         name=input("Enter User  Name : ")
+         email=input("Enter Email : ")
+         password=input("Enter a Password")
+         phone=input("Enter  Phone Number : ")
+         if len(phone)==10:
+            qry="insert into user values('{}','{}', '{}','{}','{}')".format(userid,name,email,password,phone)
+            mycursor.execute(qry)
+            mydb.commit()
+            print("User Added Successfully")
+            Admin()
+         else:
+            print("Entered Phone Number is Wrong")
+            print("Re - Enter ")
+            adduser()
+    else:
+         print("User id Already Taken")
+         print("Re-Enter a Diffrent User id")
+         adduser()
+
+            
+
+def showuser():
+    qry='select * from user'
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    print('-'*40)
+    print("List of Users")
+    print('-'*40)
+    print("Id      Name            Email                       Phone")
+    for i in myrecord:
+        print(i[0],'    ',i[1],'    ',i[2],'    ',i[3])
+    print('-'*60)
+    Admin()
+
+def removeuser():
+    print('-'*60)
+    print('\t remove a User')
+    print('-'*60)
+    userid=input('Enter  User Id : ')
+    qry="select * from  user where userid='{}'".format(userid)
+    mycursor.execute(qry)
+    rec=mycursor.fetchall()
+    if len(rec)==0:
+            print("Invalid User ID")
+            Admin()
+    else:
+            qry="delete from user where userid='{}' ".format(userid)
+            mycursor.execute(qry)
+            mydb.commit()
+            print('Removed User Succesfully')
+            Admin()
+
+            
+#book
+def addbook():
+    print('-'*50)
+    print('\t Adding A New Book')
+    bookid=input("Enter Book Id :")
+    bookname=input("Enter Book Name :")
+    author=input("Enter Author Name : ")
+    publisher=input("Enter Publisher : ")
+    cost=int(input("Enter Cost of the Book : "))
+    qry="insert into book values('{}','{}','{}','{}',{})".format(bookid,bookname,author,publisher,cost)
+    mycursor.execute(qry)
+    mydb.commit()
+    print('Book Added Successfully')
+    Admin()
+
+def showbook():
+    mycursor.execute('select * from book')
+    myrecord=mycursor.fetchall()
+    print('-'*50)
+    print("\t    Book Details  ")
+    print('-'* 50)
+    print("Id         bookname       Author            Publisher       Cost  ")
+    for i in myrecord:
+        print(i[0],'      ',i[1],'      ',i[2],'        ',i[3],'        ',i[4])
+        Admin()
+
+def delbook():
+    print('-'* 40)
+    print('\t Deleting A Book')
+    print('-'*40)
+    bookid=input('Enter Book Id : ')
+    qry="select * from book where bookid='{}'".format(bookid)
+    mycursor.execute(qry)
+    rec=mycursor.fetchall()
+    if len(rec)==0:
+            print("Invalid Book ID")
+            Admin()
+    else:
+            qry="delete from book where  bookid='{}' ".format(bookid)
+            mycursor.execute(qry)
+            mydb.commit()
+            print('Book Deleted Successfully')
+            Admin()
+
+
+            
+#issue
+
+
+def issuebook():
+    bookid=input('Enter  the book id to be issued  : ')
+    qry="select *from issue where bookid='{}'  ".format(bookid)
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    if len(myrecord)==0:
+        userid=input('Enter User Id: ')
+        qry="select * from user where userid='{}'".format(userid)
+        mycursor.execute(qry)
+        rec=mycursor.fetchall()
+        if  len(rec)==0:
+                print("Enter the User ID Correctly")
+                Admin()
+                
+        else:
+                doi=input('Enter the date of issue  : ')
+                quy="insert into issue values('{}','{}','{}')".format(userid,bookid,doi)
+                mycursor.execute(quy)
+                mydb.commit()
+                print('-'*40)
+                print('Book Issued Successfully')
+                print('-'*40)
+                Admin()
+    else:
+        print('-'*40)
+        print('   Sorry!  The Book is not Available')
+        print('-'*40)
+        Admin()
+
+
+
+def showissued():
+    mycursor.execute('select * from issue')
+    myrecord=mycursor.fetchall()
+    print('        List Of Issued Book')
+    print('-' * 40)
+    if len(myrecord)==0:
+            print('                NO Data'                  )
+            Admin()
+    else:        
+         print('User  BookId      Issued Date')
+         for i in myrecord:
+              print(i[0],'         ',i[1],'        ',i[2])
+              print('-'*40)
+              Admin()
+
+
+
+#returnbook
+
+def showreturn():
+    mycursor.execute('select * from issuelog')
+    myrecord=mycursor.fetchall()
+    print('        List of Returned Books')
+    print('-'*40)
+    if len(myrecord)==0:
+            print('             No Data'                     )
+            Admin()
+    else:
+            print('User    BookId     Issued Date      Return Date ')
+            for i in myrecord:
+                print(i[0],'   ',i[1],'       ',i[2],'       ',i[3])
+                print('-'*40)
+                Admin()
+
+ 
+def returnbook():
+    bookid=input('Enter the Book Id : ')
+    userid=input('Enter the User  Id : ')
+    qry="select * from issue where bookid='{}' and userid='{}' ".format(bookid,userid)
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    if len(myrecord)==0:
+        print('-'*40)
+        print('This Book is not Issued to This  User')
+        print('-'*40)
+        Admin()
+    else:
+        dort=input('Enter the date of return : ')
+        q="delete from issue where bookid='{}' and userid='{}' ".format(bookid,userid)
+        mycursor.execute(q)
+        mydb.commit()
+        q="insert into issuelog values('{}','{}','{}','{}')".format(bookid,userid,myrecord[0][2],dort)
+        mycursor.execute(q)
+        mydb.commit()
+        print('Book Returned')
+        Admin()
+
+def Library():
+    mycursor.execute("SELECT * FROM book")
+    myrecordbook= mycursor.fetchall()
+    mycursor.execute("SELECT * FROM user")
+    myrecorduser= mycursor.fetchall()
+    mycursor.execute("Select * from admin")
+    myrecordname=mycursor.fetchall()
+    mydb.commit()
+    print("-"*50)
+    print("About Library")
+    print("-"*50)
+    print("Year of Library's Establishment : ", 2023)
+    print("Name of the Librarian : ", myrecordname[0][0])
+    print("Total Number of Books Available in the Library : ",len(myrecordbook))
+    print("Total Number of Users Enrolled in the Library : ",len(myrecorduser))
+    print("-"*50)
+def showbookuser():
+    mycursor.execute('select * from book')
+    myrecord=mycursor.fetchall()
+    print('-'*50)
+    print("\t    Book Details  ")
+    print('-'* 50)
+    print("Id         bookname       Author            Publisher       Cost  ")
+    for i in myrecord:
+        print(i[0],'      ',i[1],'      ',i[2],'        ',i[3],'        ',i[4])
+        user()
+
+#Searchbook
+def searchBookbyname():
+    print("-"*50)
+    bookname=input("Enter The Book Name:")
+    qry="Select * from book where bookname='{}' ".format(bookname)
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    if len(myrecord)==0:
+        print('-'*15,"Book not Found",'-'*15)
+    else:
+         print("Id         bookname       Author            Publisher       Cost  ")
+         for i in myrecord:
+             print(i[0],'      ',i[1],'      ',i[2],'        ',i[3],'        ',i[4])
+             
+
+
+        
+def searchBookbyauthor():
+    print("-"*50)
+    bookauthor=input("Enter The Book Name:")
+    qry="Select * from book where bookauthor='{}' ".format(bookauthor)
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    if len(myrecord)==0:
+        print('-'*15,"Book not Found",'-'*15)
+    else:
+         print("Id         bookname       Author            Publisher       Cost  ")
+         for i in myrecord:
+             print(i[0],'      ',i[1],'      ',i[2],'        ',i[3],'        ',i[4])
+        
+
+def searchbook():
+    print("Search Books") 
+    print("-"*50)
+    print("Press 1 - Search Book by Name") 
+    print("Press 2 -Search Book by Author")
+    print("Press 3- Home")
+    print("Press 4 - Exit")
+    Ch = int(input("Enter your Choice to Continue : ")) 
+    print("-"*50)
+    if Ch == 1: 
+        searchBookbyname() 
+    elif Ch == 2:
+        searchBookbyauthor() 
+    elif Ch == 3:
+        home()
+    elif Ch == 4:
+        Exit()
+    else: 
+        validoption() 
+
+
+def showissueduser():
+    mycursor.execute('select * from issue')
+    myrecord=mycursor.fetchall()
+    print('        List Of Issued Book')
+    print('-' * 40)
+    if len(myrecord)==0:
+            print('                NO Data'                  )
+    print('User  BookId      Issued Date')
+    for i in myrecord:
+        print(i[0],'         ',i[1],'        ',i[2])
+    print('-'*40)
+
+
+
+def Admin():
+    print('-'*50)
+    print('\t Choose an Operation')
+    print('-'*50)
+    print("Press 1  - Add a New User")
+    print("Press 2 - Delete an existing User")
+    print("Press 3 - Show All User")
+    print("Press 4 - Add a New Book")
+    print("Press 5 - Delete  an Existing Book")
+    print("Press 6 - Show All Books")
+    print("Press 7 - Issue a Book ")
+    print("Press 8 - Return a Book ")
+    print("Press 9 - Show Issued  Books ")
+    print("Press 10 - Show Returned Books")
+    print("Press 11 - Home")
+    print("Press 12 - Exit")
+    ch=int(input('Enter Your Choice :'))
+    if ch==1:
+        adduser()
+    elif ch==2:
+        removeuser()
+    elif ch==3:
+        showuser()
+    elif ch==4:
+        addbook()
+    elif ch==5:
+        delbook()
+    elif ch==6:
+        showbook()
+    elif ch==7:
+        issuebook()
+    elif ch==8:
+        returnbook()
+    elif ch==9:
+        showissued()
+    elif ch==10:
+        showreturn()
+    elif ch==11:
+         home()  
+    elif ch ==12:
+        Exit()
+    else:
+        print("Invalid Option")
+        print("Go Back")
+        Admin()
+
+
+def login():
+    print('-'*60)
+    print('\t Library Management System')
+    print('-'*60)
+    print('\t Login')
+    admin=input('Enter Admin Name : ')
+    passwd=input('Enter Password : ')
+    qry="select * from admin where adminname='{}'and passwd='{}' ".format(admin,passwd)
+    mycursor.execute(qry)
+    myrecord=mycursor.fetchall()
+    print('-'*60)
+    if len(myrecord)==0:
+        print('Invaild Admin name or password')
+        print('Go Home')
+        print('-'*50)
+        home()
+    
+    else:
+        print('Access Granted ')
+        print('-'*50)
+        Admin()
+               
+    
+
+def user():
+    print("1. About Library")
+    print("2. Display Books")
+    print("3. Search Books")
+    print("4. Issued Books Details")
+    print("5. Back")
+    print("6. Exit")
+    Ch = int(input("Enter your Choice to Continue : "))
+    print("-"*40)
+    if Ch == 1:
+        library() # type: ignore
+    elif Ch == 2:
+        showbook_user() # type: ignore
+    elif Ch == 3:
+        searchbook()
+    elif Ch == 4:
+        showissueduser()
+    elif Ch == 5:
+        Exit()
+    else:
+        validoption()
+
+def userlogin():
+    print('-'*60)
+    print('\t Library Management System')
+    print('-'*60)
+    print('\t User Login')
+    userid = input("Enter the User ID : ")
+    password = input("Enter the User Password : ")
+    mycursor.execute("select * from user where userid= '{}' and password='{}' ".format(userid,password))
+    myrecord= mycursor.fetchall()
+    if len(myrecord)==0:
+                     print("Invalid Userid or Password")
+                     print("Go Home")
+                     home()
+    else:
+        user()
+
+
+ 
+def home():
+    while True:
+         print("-"*40)
+         print("Home")
+         print("-"*40)
+         print("Press 1- Admin")
+         print("Press 2 - User")
+         print("Press 3 - Exit")
+         ch= int(input("Enter your Choice to Continue : "))
+         print("-"*40)
+         if ch == 1:
+             login()
+         elif ch == 2:
+             userlogin()
+         elif ch == 3:
+             Exit()
+         else:
+            validoption()
+
+
+home()
+
+
+
